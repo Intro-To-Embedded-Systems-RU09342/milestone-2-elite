@@ -81,6 +81,9 @@ void temperature_control(void)
     while(change_temp_higher == 1)      //if user wants to change the temperature higher
         {
 
+        TA0CCR1 = 26;      //10% duty cycle
+        __delay_cycles(3000000); // delay to heat up
+
             if (actual_temp >= desired_temp-2)
             {
                 if (desired_temp <= 27)     //check desired temperature
@@ -111,7 +114,7 @@ void temperature_control(void)
                         TA0CCR1 = 102;      //40% duty cycle
                     }
                 else if (desired_temp >= 36 && desired_temp < 38)       //check desired temperature
-                {
+                    {
 
                         TA0CCR1 = 76;      //30% duty cycle
                     }
@@ -179,7 +182,7 @@ void timer_setup(void)
     TA0CCTL1 |= OUTMOD_7;         //set/reset output
     TA0CCR0 = 255;                //100% duty cycle
     TA0CCR1 = 255;                //100% current duty cycle
-    __delay_cycles(1000000)       // delay for fan kick to start
+    __delay_cycles(1000000);       // delay for fan kick to start
     TA0CCR1 = 26;                 //10% duty cycle
 
     TA1CTL |= TASSEL_2 + MC_1;    //set smclk, up mode
@@ -201,7 +204,7 @@ void ADC_setup(void)
         ADC10CTL0 |= ENC + ADC10SC;         // Sampling and conversion start
         __bis_SR_register(CPUOFF + GIE);    // Low Power Mode 0 with interrupts enabled
         ADC_value = ADC10MEM;               // Assigns the value held in ADC10MEM to the integer called ADC_value
-        temp_conversion = (ADC_value-182)/3.1;  //convert ADC value to Celsius
+        temp_conversion = (ADC_value-155)/3.1;  //convert ADC value to Celsius
         actual_temp = temp_conversion;      //convert ADC value to Celsius
 
         if(actual_temp <= desired_temp+2 && actual_temp >= desired_temp-2 && want == 1) //if temperature is done changing and send current temperature is enabled
@@ -218,9 +221,6 @@ __interrupt void ADC10_ISR (void)
 {
     __bic_SR_register_on_exit(CPUOFF);        // Return to active mode }
 }
-
-
-
 
 int main(void)
 {
